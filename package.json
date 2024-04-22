@@ -17,6 +17,7 @@
     "chart.js": "^4.4.2",
     "firebase": "^10.8.1",
     "firebase-tools": "^13.4.0",
+    "hls.js": "^1.5.7",
     "react": "^18.2.0",
     "react-chartjs-2": "^5.2.0",
     "react-dom": "^18.2.0",
@@ -26,7 +27,6 @@
     "react-slick": "^0.30.2",
     "react-table": "^7.8.0",
     "reactjs-popup": "^2.0.6",
-    "sass": "^1.72.0",
     "shaka-player-react": "^1.1.5",
     "slick-carousel": "^1.8.1",
     "styled-components": "^6.1.8"

@@ -370,5 +370,4 @@ const Text = styled.h2`
   font-size: 16px;
 `;
 
-
 export default UploadSeries;

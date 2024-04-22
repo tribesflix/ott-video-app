@@ -49,16 +49,16 @@ const Navbar = ({ openNav, setOpenNav, adminRoute, setAdminRoute }) => {
   }
 
   return (
-    <Nav opennav={openNav}>
+    <Nav opennav={openNav.toString()}>
         <XMark onClick={() => setOpenNav(false)}>
           <FaXmark />
         </XMark>
         <Logo>
-            <img src="/images/tribesflix.png" alt="Disney+" />
+            <img src="/images/tribesflix.png" alt="TribesFlix" />
         </Logo>
         {
           username ? (
-            <NavContent setOpenNav={setOpenNav} userPhoto={userPhoto} adminRoute={adminRoute} userId={userId} setAdminRoute={setAdminRoute} username={username} handleSignOut={handleSignOut} />
+            <NavContent setOpenNav={setOpenNav} userPhoto={userPhoto} username={username} userId={userId} handleSignOut={handleSignOut} adminRoute={adminRoute} setAdminRoute={setAdminRoute} />
           ) : (
             <Login href={'/signup'}>Signup</Login>
           )
@@ -86,7 +86,7 @@ const Nav = styled.nav`
     flex-direction: column;
     justify-content: center;
     width: 100%;
-    top: ${props => props.opennav ? '0' : '-150%'};
+    top: ${props => props.opennav === "true" ? '0' : '-150%'};
     transition: all 0.3s ease-out;
   }
 `;
@@ -130,7 +130,6 @@ const Login = styled.a`
   border: 1px solid #f9f9f9;
   border-radius: 4px;
   transition: all 0.2s ease 0s;
-  color: #ffffff;
 
   &:hover {
     background-color: #f9f9f9;

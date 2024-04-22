@@ -1,4 +1,4 @@
-import { GoogleAuthProvider, createUserWithEmailAndPassword, onAuthStateChanged, signInWithEmailAndPassword, signInWithPopup, updateProfile } from "firebase/auth";
+import { GoogleAuthProvider, createUserWithEmailAndPassword, onAuthStateChanged, signInWithPopup, updateProfile } from "firebase/auth";
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
@@ -119,7 +119,7 @@ const Signup = () => {
             <SignUp type="submit">SIGN UP</SignUp>
           </form>
           <Description>
-            Already have an account? <Link to={'/'} style={{ color: "white"}}>Login</Link>
+            Already have an account? <Link to={'/'}>Login</Link>
           </Description>
         </CTA>
         <BgImage />

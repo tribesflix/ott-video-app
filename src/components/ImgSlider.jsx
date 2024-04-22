@@ -2,8 +2,28 @@ import styled from "styled-components";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import Slider from "react-slick";
+import { useEffect } from "react";
+import { collection, getDocs } from "firebase/firestore";
+import { db } from "../lib/firebase";
+import { useState } from "react";
 
 const ImgSlider = () => {
+
+  const [banners, setBanners] = useState([]);
+
+    useEffect(() => {
+      const fetchData = async () => {
+        try {
+          const bannersSnapshot = await getDocs(collection(db, "banners"));
+          const bannersData = bannersSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+          setBanners(bannersData);
+        } catch(err) {
+          console.error(err);
+        }
+      }
+  
+      fetchData();
+    }, []);
   
   let settings = {
     dots: true,
@@ -16,29 +36,15 @@ const ImgSlider = () => {
 
   return (
     <Carousel {...settings}>
-      <Wrap>
-        <a>
-          <img src="/images/slider-badging.jpg" alt="" />
-        </a>
-      </Wrap>
-
-      <Wrap>
-        <a>
-          <img src="/images/slider-scale.jpg" alt="" />
-        </a>
-      </Wrap>
-
-      <Wrap>
-        <a>
-          <img src="/images/slider-badag.jpg" alt="" />
-        </a>
-      </Wrap>
-
-      <Wrap>
-        <a>
-          <img src="/images/slider-scales.jpg" alt="" />
-        </a>
-      </Wrap>
+      {
+        banners.map(banner => (
+          <Wrap>
+            <a>
+              <img src={banner.bannerURL} alt={banner.id} />
+            </a>
+          </Wrap>
+        ))
+      }
     </Carousel>
   );
 };
@@ -95,16 +101,23 @@ const Wrap = styled.div`
     display: block;
     position: relative;
     padding: 4px;
+    width: 100%;
+    height: 330px;
 
     img {
       width: 100%;
       height: 100%;
+      object-fit: cover;
     }
 
     &:hover {
       padding: 0;
       border: 4px solid rgba(249, 249, 249, 0.8);
       transition-duration: 300ms;
+    }
+
+    @media screen and (max-width: 768px) {
+      height: 150px;
     }
   }
 `;

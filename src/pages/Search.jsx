@@ -26,13 +26,12 @@ const Search = () => {
     return unsubscribe;
   }, []);
 
-  const searchMovie = (event) => {
+  const searchMovie = () => {
     const result = searchMovies.filter((movie) =>
       movie.title.toLowerCase().includes(searchVal.toLowerCase())
     );
-    if (event.key == "Enter") {
-      setResults(result);
-    }
+    
+    setResults(result);
   };
 
   return (
@@ -44,6 +43,9 @@ const Search = () => {
         onChange={(e) => setSearchVal(e.target.value)}
         onKeyDown={searchMovie}
       />
+      <Heading>
+        Suggestions
+      </Heading>
       <Content>
         {results.map((movie, key) => (
           <Wrap key={key}>
@@ -80,7 +82,7 @@ const SearchBar = styled.input`
   border: none;
   outline: none;
   border-radius: 20px;
-  margin-bottom: 50px;
+  margin-bottom: 20px;
 `;
 
 const Content = styled.div`
@@ -92,6 +94,12 @@ const Content = styled.div`
   @media (max-width: 768px) {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
+`;
+
+const Heading = styled.h2`
+  color: #ffffff;
+  margin-bottom: 20px;
+  font-size: 18px;
 `;
 
 const Wrap = styled.div`

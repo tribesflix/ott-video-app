@@ -106,7 +106,7 @@ const Login = () => {
             <SignUp type="submit">LOGIN</SignUp>
           </form>
           <Description>
-            Don't have an account? <Link to={'/signup'} style={{ color: "white"}}>Sign Up</Link>
+            Don't have an account? <Link to={'/signup'}>Sign Up</Link>
           </Description>
           <CTALogoTwo src="/images/cta-logo-two.png" alt="TribesFlix" />
         </CTA>

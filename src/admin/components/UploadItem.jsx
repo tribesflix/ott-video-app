@@ -354,7 +354,7 @@ const Box = styled.div`
   align-items: center;
   border-radius: 10px;
   border: 2px solid #090b13;
-  padding: 10px 20px;
+  padding: 0 20px;
 `;
 
 const EpisodeBox = styled.div`

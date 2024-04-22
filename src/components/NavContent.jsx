@@ -4,6 +4,8 @@ import { useEffect } from "react";
 import { Link } from "react-router-dom";
 import styled from "styled-components";
 import { db } from "../lib/firebase";
+import { useState } from "react";
+
 const NavContent = ({ userPhoto, username, userId, handleSignOut, setOpenNav, adminRoute, setAdminRoute }) => {
 
   useEffect(() => {
