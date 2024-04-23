@@ -40,6 +40,16 @@ const AppContent = ({ openNav, setOpenNav, setAdminRoute, adminRoute }) => {
     return <Navigate to="/" />;
   }
 
+  // Function to determine if the current route is the login or signup page
+  const isAuthPage = () => {
+    return ['/signup', '/'].includes(location.pathname);
+  };
+
+  // Function to determine if the current route is the detail page
+  const isDetailPage = () => {
+    return location.pathname.includes('/detail/');
+  };
+
   return (
     <>
       {!isAdmin && <MobileNav openNav={openNav} setOpenNav={setOpenNav} />}
@@ -66,7 +76,8 @@ const AppContent = ({ openNav, setOpenNav, setAdminRoute, adminRoute }) => {
           </>
         )}
       </Routes>
-      {!isAdmin && <Footer />}
+      {/* Conditionally render the footer based on current route */}
+      {!isAdmin && !isAuthPage() && !isDetailPage() && <Footer />}
     </>
   );
 };
