@@ -47,9 +47,11 @@ const Sidebar = ({ openSideBar, setOpenSideBar }) => {
 
     return (
         <Nav opensidebar={openSideBar.toString()}>
+          <Link to='/'>
           <Logo>
               <img src="/images/tribesflix.png" alt="Disney+" />
           </Logo>
+          </Link>
           <NavMenu>
             <Link to="/super-admin/dashboard">
               <MdDashboard />
