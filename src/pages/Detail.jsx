@@ -13,7 +13,6 @@ import { selectUID } from "../features/user/userSlice";
 
 const Detail = () => {
   
-  // Accessing ID from the param
   const { id } = useParams();
 
   // Accessing the content meta data associated with ID
