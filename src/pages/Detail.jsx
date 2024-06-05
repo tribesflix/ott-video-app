@@ -107,7 +107,7 @@ const Detail = () => {
                   </MenuBar>
                   {/* <ShakaPlayer autoPlay src={detailData.movieURL} /> */}
                   <Video controls={true} autoPlay={true} controlsList="nodownload">
-                    <source src={"/videos/raya.m3u8"} />
+                    <source src={detailData.movieURL} />
                   </Video>
                   <Box>
                     <QualitySwitch >
