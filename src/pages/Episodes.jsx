@@ -15,8 +15,8 @@ import { db } from "../lib/firebase";
 import styled from "styled-components";
 import { useEffect } from "react";
 import { FaPlus, FaCheck } from "react-icons/fa";
-import { selectUID } from "../features/user/userSlice";
-import { useSelector } from "react-redux";
+import { useContext } from "react";
+import { AuthContext } from "../contexts/AuthContext";
 
 const Episodes = () => {
 
@@ -31,7 +31,7 @@ const Episodes = () => {
   const [watchlistIcon, setWatchlistIcon] = useState(false);
 
   // Accessing user creds
-  const user = useSelector(selectUID);
+  const { user } = useContext(AuthContext);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -50,7 +50,7 @@ const Episodes = () => {
 
       // Check if added to watchlist
       const watchlistDoc = await getDoc(
-        doc(db, "users", user, "watchlist", id)
+        doc(db, "users", user.uid, "watchlist", id)
       );
       if (watchlistDoc.exists()) {
         setWatchlistIcon(true);
@@ -69,14 +69,14 @@ const Episodes = () => {
       const movieDoc = await getDoc(doc(db, "movies", id));
       console.log(movieDoc);
       if (movieDoc.exists()) {
-        await setDoc(doc(collection(db, "users", user, "watchlist"), id), {
+        await setDoc(doc(collection(db, "users", user.uid, "watchlist"), id), {
           id: movieDoc.id,
           ...movieDoc.data(),
         });
       }
     } else {
       setWatchlistIcon(false);
-      await deleteDoc(doc(db, "users", user, "watchlist", id));
+      await deleteDoc(doc(db, "users", user.uid, "watchlist", id));
     }
   };
 

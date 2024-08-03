@@ -1,25 +1,27 @@
-import { doc, getDoc } from "firebase/firestore";
-import React from "react";
-import { useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { Link } from "react-router-dom";
 import styled from "styled-components";
-import { db } from "../lib/firebase";
-import { useState } from "react";
+import { AuthContext } from "../contexts/AuthContext";
 
-const NavContent = ({ userPhoto, username, userId, handleSignOut, setOpenNav, adminRoute, setAdminRoute }) => {
+const NavContent = ({ setOpenNav, adminRoute, setAdminRoute }) => {
+
+  const { user, handleSignOut } = useContext(AuthContext);
+
+  const [isEditor, setIsEditor] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
-      const userDoc = await getDoc(doc(db, 'users', userId));
-      if(userDoc.exists()) {
-        if(userDoc.data().type === "admin") {
-          setAdminRoute(true);
-        }
+      if(user.type === "admin") {
+        setAdminRoute(true);
+      }
+      if(user.type === "editor") {
+        setIsEditor(true);
+        setAdminRoute(true);
       }
     }
 
     fetchData();
-  }, [])
+  }, []);
 
   return (
     <>
@@ -45,19 +47,26 @@ const NavContent = ({ userPhoto, username, userId, handleSignOut, setOpenNav, ad
                 <span>SEARCH</span>
             </Link>
             {
-              adminRoute && (
+              adminRoute && !isEditor && (
                 <Link to={'/super-admin/dashboard'} onClick={() => setOpenNav(false)}>
                   <img src="/images/original-icon.svg" alt="ORIGINALS" />
                   <span>DASHBOARD</span>
                 </Link>
               )
             }
+            {
+              isEditor && (
+                <Link to={'/super-admin/upload'} onClick={() => setOpenNav(false)}>
+                  <img src="/images/original-icon.svg" alt="ORIGINALS" />
+                  <span>UPLOAD</span>
+                </Link>
+              )
+            }
       </NavMenu>
       <SignOut>
-        <UserImg src={userPhoto} alt={username} />
-        <DropDown>
-          <span onClick={handleSignOut}>Sign Out</span>
-        </DropDown>
+        <Link to={'/profile'}>
+          <UserImg src={user.photo} alt={user.name} />
+        </Link>
       </SignOut>
     </>
   );

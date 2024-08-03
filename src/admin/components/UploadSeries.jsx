@@ -1,9 +1,10 @@
 import React, { useState } from "react";
 import styled from "styled-components";
-import { deleteObject, getDownloadURL, ref, uploadBytes } from "firebase/storage";
+import { getDownloadURL, ref, uploadBytes, deleteObject } from "firebase/storage";
 import { addDoc, collection, serverTimestamp } from "firebase/firestore";
 import { db, storage } from "../../lib/firebase";
 import Loader from "./Loader";
+import axios from "axios";
 
 const UploadSeries = ({ closeRef }) => {
 
@@ -43,11 +44,21 @@ const UploadSeries = ({ closeRef }) => {
     const [episodeNumber, setEpisodeNumber] = useState('');
     const [episodeFile, setEpisodeFile] = useState(null);
 
+    const uploadToCloudinary = async (file) => {
+        const url = `https://api.cloudinary.com/v1_1/dvqdujipe/video/upload`;
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('upload_preset', 'uploading-content');
+
+        const response = await axios.post(url, formData);
+        return response.data.secure_url;
+    };
+
     const handleUpload = async (event) => {
         event.preventDefault();
         try {
             setLoad(true);
-        const uploadTasks = Object.keys(contentFileInput).map(async (key) => {
+            const uploadTasks = Object.keys(contentFileInput).map(async (key) => {
             const file = contentFileInput[key];
             if(file) {
                 const storageRef = ref(storage, `movies/${contentUploadData.title}/${key}`);
@@ -103,9 +114,7 @@ const UploadSeries = ({ closeRef }) => {
         try {
             setEpisodeLoad(true);
             if (episodeFile) {
-                const storageRef = ref(storage, `movies/${contentUploadData.title}/episodes/${episodeNumber}.mp4`);
-                await uploadBytes(storageRef, episodeFile);
-                const episodeDownloadURL = await getDownloadURL(storageRef);
+                const episodeDownloadURL = await uploadToCloudinary(episodeFile);
                 if(episodeDownloadURL) {
                     setEpisodeLoad(false);
                 }
@@ -132,15 +141,15 @@ const UploadSeries = ({ closeRef }) => {
         }
     };
 
-    const deleteEpisode = async (episodeTitle, episodeNo) => {
-        try {
-            const storageRef = ref(storage, `movies/${contentUploadData.title}/episodes/${episodeNo}.mp4`);
-            await deleteObject(storageRef);
-            setEpisodes(prevEpisodes => prevEpisodes.filter(episode => episode.title !== episodeTitle));
-        } catch (err) {
-            console.error("Error: ", err);
-        }
-    }
+    // const deleteEpisode = async (episodeTitle, episodeNo) => {
+    //     try {
+    //         const storageRef = ref(storage, `movies/${contentUploadData.title}/episodes/${episodeNo}.mp4`);
+    //         await deleteObject(storageRef);
+    //         setEpisodes(prevEpisodes => prevEpisodes.filter(episode => episode.title !== episodeTitle));
+    //     } catch (err) {
+    //         console.error("Error: ", err);
+    //     }
+    // }
 
     return (
         <>
@@ -226,9 +235,9 @@ const UploadSeries = ({ closeRef }) => {
                             <EpisodeBox key={i}>
                                 <Text>{episode.title}</Text>
                                 <Text>{episode.type}</Text>
-                                <Div>
+                                {/* <Div>
                                     <Delete type='button' onClick={() => deleteEpisode(episode.title, episode.episodeNumber)}>Delete</Delete>
-                                </Div>
+                                </Div> */}
                             </EpisodeBox>
                         ))
                     }

@@ -1,6 +1,7 @@
 import React from "react";
 import styled from "styled-components";
 import { useState } from "react";
+import axios from 'axios';
 import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
 import { addDoc, collection, serverTimestamp } from "firebase/firestore";
 import { db, storage } from "../../lib/firebase";
@@ -44,14 +45,15 @@ const UploadMovie = ({ closeRef }) => {
   };
 
   // Upload function for content
-  let uploadTasks = [];
   const handleUpload = async (event) => {
     event.preventDefault();
     try {
       setLoad(true);
-      uploadTasks = Object.keys(contentFileInput).map(async (key) => {
+
+      // Upload files to Firebase Storage except for movieURL
+      const uploadTasks = Object.keys(contentFileInput).map(async (key) => {
         const file = contentFileInput[key];
-        if(file) {
+        if (file && key !== 'movieURL') {
           const storageRef = ref(storage, `movies/${contentUploadData.title}/${key}`);
           await uploadBytes(storageRef, file);
           const downloadURL = await getDownloadURL(storageRef);
@@ -59,15 +61,26 @@ const UploadMovie = ({ closeRef }) => {
         }
       });
 
+      // Upload movieURL to Cloudinary
+      if (contentFileInput.movieURL) {
+        const file = contentFileInput.movieURL;
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('upload_preset', 'uploading-content'); // Use your actual unsigned preset name
+
+        const response = await axios.post('https://api.cloudinary.com/v1_1/dvqdujipe/video/upload', formData);
+        contentUploadData.movieURL = response.data.secure_url;
+      }
+
       await Promise.all(uploadTasks);
 
       const docData = {
         ...contentUploadData,
         releaseDate: serverTimestamp()
-      }
+      };
 
       const docRef = await addDoc(collection(db, 'movies'), docData);
-      if(docRef) {
+      if (docRef) {
         setLoad(false);
       }
 
@@ -92,6 +105,7 @@ const UploadMovie = ({ closeRef }) => {
 
     } catch (error) {
       console.error('Error submitting form:', error);
+      setLoad(false);
     }
   }
 
@@ -227,13 +241,6 @@ const FileInput = styled.input`
   padding: 10px;
   border: none;
   outline: none;
-`;
-
-const Select = styled.select`
-  padding: 10px;
-  border: none;
-  outline: none;
-  border-radius: 5px;
 `;
 
 const SubmitButton = styled.button`
