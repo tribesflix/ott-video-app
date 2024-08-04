@@ -43,6 +43,7 @@ const AuthState = ({ children }) => {
                 email: result.user.email,
                 photo: result.user.photoURL,
                 type: "user",
+                subscription: "Free",
                 createdAt: serverTimestamp()
             });
 
@@ -96,6 +97,7 @@ const AuthState = ({ children }) => {
                 email: editUser.email,
                 photo: editUser.photoURL,
                 type: "user",
+                subscription: "Free",
                 createdAt: serverTimestamp()
             });
 

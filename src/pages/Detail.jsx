@@ -125,12 +125,28 @@ const Detail = () => {
                     }}
                   />
                   <Box>
-                    <QualitySwitch onClick={() => getTranscodedUrl('1080p')}>
-                      1080p
-                    </QualitySwitch>
-                    <QualitySwitch onClick={() => getTranscodedUrl('720p')}>
-                      720p
-                    </QualitySwitch>
+                    {
+                      user?.subscription === "Premium" ? (
+                        <QualitySwitch onClick={() => getTranscodedUrl('1080p')}>
+                          1080p
+                        </QualitySwitch>
+                      ) : (
+                        <QualitySwitch onClick={() => alert("Upgrade to Premium Plan")}>
+                          1080p
+                        </QualitySwitch>
+                      )
+                    }
+                    {
+                      user?.subscription === "Standard" ? (
+                        <QualitySwitch onClick={() => getTranscodedUrl('720p')}>
+                          720p
+                        </QualitySwitch>
+                      ) : (
+                        <QualitySwitch onClick={() => alert("Upgrade to Standard Plan")}>
+                          720p
+                        </QualitySwitch>
+                      )
+                    }
                     <QualitySwitch onClick={() => getTranscodedUrl('480p')}>
                       480p
                     </QualitySwitch>

@@ -1,10 +1,12 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 
 const Card = styled.div`
   border-radius: 8px;
   padding: 20px;
   margin: 10px;
+  width: 200px;
   text-align: center;
   background-color: #f7f7f7;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
@@ -51,17 +53,32 @@ const Button = styled.button`
   }
 `;
 
-const PricingCard = ({ title, price, features }) => {
+const PricingCard = ({ title, price, features, onclick }) => {
+
+  const alreadyFree = () => {
+    alert("Already using free plan");
+  }
+
   return (
     <Card>
-      <Title>{title}</Title>
-      <Price>{price}</Price>
+      <Title>{title} Plan</Title>
+      <Price>INR {price}</Price>
       <FeatureList>
         {features.map((feature, index) => (
           <FeatureItem key={index}>{feature}</FeatureItem>
         ))}
       </FeatureList>
-      <Button>Get Started</Button>
+      {
+        title === "Free" ? (
+          <Button onClick={alreadyFree}>
+            Get Started
+          </Button>
+        ) : (
+          <Button onClick={onclick}>
+            Get Started
+          </Button>
+        )
+      }
     </Card>
   );
 };

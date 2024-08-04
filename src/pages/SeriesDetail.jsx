@@ -7,6 +7,8 @@ import Popup from "reactjs-popup";
 import { FaArrowCircleLeft, FaShare } from "react-icons/fa";
 import Plyr from 'plyr-react';
 import "plyr-react/plyr.css";
+import { useContext } from "react";
+import { AuthContext } from "../contexts/AuthContext";
 
 const SeriesDetail = () => {
   const { id, episodeId } = useParams();
@@ -16,6 +18,7 @@ const SeriesDetail = () => {
   const [videoKey, setVideoKey] = useState(Date.now());
   const [currentEpisodeIndex, setCurrentEpisodeIndex] = useState(0);
   const [isPopupOpen, setIsPopupOpen] = useState(false);
+  const { user } = useContext(AuthContext);
 
   let navigate = useNavigate();
   const playerRef = useRef(null);
@@ -151,12 +154,28 @@ const SeriesDetail = () => {
                   }}
                 />
                 <Box>
-                  <QualitySwitch onClick={() => getTranscodedUrl('1080p')}>
-                    1080p
-                  </QualitySwitch>
-                  <QualitySwitch onClick={() => getTranscodedUrl('720p')}>
-                    720p
-                  </QualitySwitch>
+                  {
+                    user?.subscription === "Premium" ? (
+                      <QualitySwitch onClick={() => getTranscodedUrl('1080p')}>
+                        1080p
+                      </QualitySwitch>
+                    ) : (
+                      <QualitySwitch onClick={() => alert("Upgrade to Premium Plan")}>
+                        1080p
+                      </QualitySwitch>
+                    )
+                  }
+                  {
+                    user?.subscription === "Standard" ? (
+                      <QualitySwitch onClick={() => getTranscodedUrl('720p')}>
+                        720p
+                      </QualitySwitch>
+                    ) : (
+                      <QualitySwitch onClick={() => alert("Upgrade to Standard Plan")}>
+                        720p
+                      </QualitySwitch>
+                    )
+                  }
                   <QualitySwitch onClick={() => getTranscodedUrl('480p')}>
                     480p
                   </QualitySwitch>

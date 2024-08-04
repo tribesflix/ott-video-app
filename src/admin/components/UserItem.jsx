@@ -17,7 +17,7 @@ const UserItem = ({ user, setUsers }) => {
         <Box>
             <Img src={user.photo} alt={user.name} />
             <Text>{user.name}</Text>
-            <Text>Free Plan</Text>
+            <Text>{user.subscription} Plan</Text>
             <Text>{user.type}</Text>
             <Delete onClick={() => deleteUser(user.id)}>Delete</Delete>
         </Box>

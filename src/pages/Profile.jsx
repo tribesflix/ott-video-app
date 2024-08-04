@@ -3,6 +3,7 @@ import { useContext } from 'react';
 import { AuthContext } from '../contexts/AuthContext';
 import styled from 'styled-components';
 import PricingCard from '../components/PricingCard';
+import Payment from '../components/Payment';
 
 const Profile = () => {
 
@@ -13,18 +14,18 @@ const Profile = () => {
             <section>
                 <AccountContainer>
                     <ProfileImage>
-                        <img src={user.photo} alt="AV" />
+                        <img src={user?.photo} alt="AV" />
                     </ProfileImage>
                     <ProfileData>
-                        <h2>Hey! {user.name}</h2>
+                        <h2>Hey! {user?.name}</h2>
                         <h3>
-                            Account: {user.email}
+                            Account: {user?.email}
                         </h3>
                         <h4>
-                          Current plan: FREE
+                          Current plan: {user?.subscription}
                         </h4>
                         <h5>
-                            Role: {user.type}
+                            Role: {user?.type}
                         </h5>
                     </ProfileData>
                 </AccountContainer>
@@ -41,11 +42,7 @@ const Profile = () => {
               <Heading>
                 Upgrade Plan
               </Heading>
-              <PricingContainer>
-                <PricingCard title="Free" price="$0" features={['Feature 1', 'Feature 2', 'Feature 3']} />
-                <PricingCard title="Pro" price="$9.99" features={['All Free Features', 'Pro Feature 1', 'Pro Feature 2']} />
-                <PricingCard title="Premium" price="$19.99" features={['All Pro Features', 'Premium Feature 1', 'Premium Feature 2']} />
-              </PricingContainer>
+              <Payment />
             </section>
         </Container>
     )
