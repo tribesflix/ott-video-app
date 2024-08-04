@@ -154,28 +154,40 @@ const SeriesDetail = () => {
                   }}
                 />
                 <Box>
-                  {
-                    user?.subscription === "Premium" ? (
-                      <QualitySwitch onClick={() => getTranscodedUrl('1080p')}>
+                {
+                      user?.subscription === "Premium" ? (
+                        <QualitySwitch onClick={() => getTranscodedUrl('1080p')}>
+                          1080p
+                        </QualitySwitch>
+                      ) : (
+                        <Popup overlayStyle={{ background: 'rgba(0, 0, 0, .5)' }} trigger={<QualitySwitch>
                         1080p
-                      </QualitySwitch>
-                    ) : (
-                      <QualitySwitch onClick={() => alert("Upgrade to Premium Plan")}>
-                        1080p
-                      </QualitySwitch>
-                    )
-                  }
-                  {
-                    user?.subscription === "Standard" ? (
-                      <QualitySwitch onClick={() => getTranscodedUrl('720p')}>
-                        720p
-                      </QualitySwitch>
-                    ) : (
-                      <QualitySwitch onClick={() => alert("Upgrade to Standard Plan")}>
-                        720p
-                      </QualitySwitch>
-                    )
-                  }
+                      </QualitySwitch>} modal nested>
+                          {
+                            close => (
+                              <Confirmation title={"Upgrade to Premium Plan"} onclick={() => close()} />
+                            )
+                          }
+                        </Popup>
+                      )
+                    }
+                    {
+                      user?.subscription === "Standard" ? (
+                        <QualitySwitch onClick={() => getTranscodedUrl('720p')}>
+                          720p
+                        </QualitySwitch>
+                      ) : (
+                        <Popup overlayStyle={{ background: 'rgba(0, 0, 0, .5)' }} trigger={<QualitySwitch>
+                          720p
+                        </QualitySwitch>} modal nested>
+                            {
+                              close => (
+                                <Confirmation title={"Upgrade to Premium Plan"} onclick={() => close()} />
+                              )
+                            }
+                          </Popup>
+                      )
+                    }
                   <QualitySwitch onClick={() => getTranscodedUrl('480p')}>
                     480p
                   </QualitySwitch>

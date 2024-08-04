@@ -8,6 +8,7 @@ import { FaArrowCircleLeft, FaPlus, FaShare, FaCheck } from "react-icons/fa";
 import { AuthContext } from "../contexts/AuthContext";
 import Plyr from 'plyr-react';
 import "plyr-react/plyr.css";
+import Confirmation from "../components/Confirmation";
 
 const Detail = () => {
   const { id } = useParams();
@@ -23,7 +24,7 @@ const Detail = () => {
         const movieDoc = await getDoc(doc(db, "movies", id));
         if (movieDoc.exists()) {
           setDetailData({ id: movieDoc.id, ...movieDoc.data() });
-          setMovie(movieDoc.data().movieURL); // Set initial movie URL
+          setMovie(movieDoc.data().movieURL);
         } else {
           console.log("No such document exists");
         }
@@ -131,9 +132,15 @@ const Detail = () => {
                           1080p
                         </QualitySwitch>
                       ) : (
-                        <QualitySwitch onClick={() => alert("Upgrade to Premium Plan")}>
-                          1080p
-                        </QualitySwitch>
+                        <Popup overlayStyle={{ background: 'rgba(0, 0, 0, .5)' }} trigger={<QualitySwitch>
+                        1080p
+                      </QualitySwitch>} modal nested>
+                          {
+                            close => (
+                              <Confirmation title={"Upgrade to Premium Plan"} onclick={() => close()} />
+                            )
+                          }
+                        </Popup>
                       )
                     }
                     {
@@ -142,9 +149,15 @@ const Detail = () => {
                           720p
                         </QualitySwitch>
                       ) : (
-                        <QualitySwitch onClick={() => alert("Upgrade to Standard Plan")}>
+                        <Popup overlayStyle={{ background: 'rgba(0, 0, 0, .5)' }} trigger={<QualitySwitch>
                           720p
-                        </QualitySwitch>
+                        </QualitySwitch>} modal nested>
+                            {
+                              close => (
+                                <Confirmation title={"Upgrade to Premium Plan"} onclick={() => close()} />
+                              )
+                            }
+                          </Popup>
                       )
                     }
                     <QualitySwitch onClick={() => getTranscodedUrl('480p')}>
@@ -430,15 +443,6 @@ const SubTitle = styled.div`
 
   @media (max-width: 768px) {
     font-size: 12px;
-  }
-`;
-
-const StyledPlyr = styled.video`
-  width: 100%;
-  height: 400px; // Adjust the height as needed
-
-  @media (max-width: 768px) {
-    height: 300px; // Adjust for smaller screens
   }
 `;
 
