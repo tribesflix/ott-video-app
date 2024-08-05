@@ -32,12 +32,12 @@ const Payment = () => {
     }
 
     const options = {
-      key: 'rzp_test_yxoZjiynf95On9', 
+      key: `${import.meta.env.VITE_RAZORPAY_KEY_ID}`, 
       amount: plan.amount * 100,
       currency: 'INR',
       name: 'Tribesflix',
       description: 'Subscription Payment',
-      image: '/public/tribesflix.png',
+      image: 'https://i.postimg.cc/wMVZwWkB/tribesflix.png',
       handler: async function (response) {
         alert(`Payment Successful: ${response.razorpay_payment_id}`);
         await updateDoc(doc(db, 'users', user?.uid), {
@@ -46,8 +46,8 @@ const Payment = () => {
       },
       prefill: {
         name: 'Tribesflix',
-        email: 'tmohamedaashir@gmail.com',
-        contact: '7358728447'
+        email: 'gitafoodproducts@gmail.com',
+        contact: '9002330168'
       },
       notes: {
         address: 'Asanol, West Bengal, India'
