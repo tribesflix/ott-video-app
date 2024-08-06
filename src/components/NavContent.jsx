@@ -42,6 +42,10 @@ const NavContent = ({ setOpenNav, adminRoute, setAdminRoute }) => {
               <img src="/images/watchlist-icon.svg" alt="WATCHLIST" />
               <span>WATCHLIST</span>
             </Link>
+            <Link to={"/rented"} onClick={() => setOpenNav(false)}>
+              <img src="/images/home-icon.svg" alt="WATCHLIST" />
+              <span>RENTED</span>
+            </Link>
             <Link to={'/search'} onClick={() => setOpenNav(false)}>
               <img src="/images/search-icon.svg" alt="SEARCH" />
                 <span>SEARCH</span>

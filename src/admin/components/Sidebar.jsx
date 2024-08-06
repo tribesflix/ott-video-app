@@ -7,12 +7,13 @@ import { CiCreditCard1 } from "react-icons/ci";
 import { GoCodeReview } from "react-icons/go";
 import { useContext } from 'react';
 import { AuthContext } from '../../contexts/AuthContext';
+import { RiMoneyDollarCircleFill } from "react-icons/ri";
 
-const Sidebar = ({ openSideBar, setOpenSideBar }) => {
+const Sidebar = ({ openSideBar }) => {
 
     const [isEditor, setIsEditor] = useState(false);
 
-    const { user, handleSignOut } = useContext(AuthContext);
+    const { user } = useContext(AuthContext);
 
 
     useEffect(() => {
@@ -58,6 +59,10 @@ const Sidebar = ({ openSideBar, setOpenSideBar }) => {
                 <Link to={"/super-admin/users"}>
                   <FaUsers />
                   Users
+                </Link>
+                <Link to={"/super-admin/plans"}>
+                  <RiMoneyDollarCircleFill />
+                  Plans
                 </Link>
                 <Link to={"/super-admin/banners"}>
                   <CiCreditCard1 />

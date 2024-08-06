@@ -22,6 +22,8 @@ import Splash from './components/Splash';
 import { Toaster } from 'react-hot-toast';
 import AuthState from './contexts/AuthContext';
 import Profile from './pages/Profile';
+import Plans from './admin/pages/Plans';
+import Rented from './pages/Rented';
 
 const App = () => {
   const [openNav, setOpenNav] = useState(false);
@@ -70,6 +72,7 @@ const AppContent = ({ openNav, setOpenNav, setAdminRoute, adminRoute }) => {
         <Route path='/watchlist' element={<Watchlist />} />
         <Route path='/search' element={<Search />} />
         <Route path='/profile' element={<Profile />} />
+        <Route path='/rented' element={<Rented />} />
         {adminRoute && isAdmin && (
           <>
             <Route path='/super-admin/dashboard' element={<Dashboard />} />
@@ -77,6 +80,7 @@ const AppContent = ({ openNav, setOpenNav, setAdminRoute, adminRoute }) => {
             <Route path='/super-admin/users' element={<Users />} />
             <Route path='/super-admin/banners' element={<Banners />} />
             <Route path='/super-admin/editors' element={<Editors />} />
+            <Route path='/super-admin/plans' element={<Plans />} />
           </>
         )}
       </Routes>

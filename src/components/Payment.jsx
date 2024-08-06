@@ -1,13 +1,16 @@
 import React, { useContext } from 'react';
-import { doc, updateDoc } from 'firebase/firestore';
+import { collection, doc, getDocs, orderBy, query, updateDoc } from 'firebase/firestore';
 import { AuthContext } from '../contexts/AuthContext';
 import { db } from '../lib/firebase';
 import styled from 'styled-components';
 import PricingCard from './PricingCard';
+import { useState } from 'react';
+import { useEffect } from 'react';
 
 const Payment = () => {
 
-    const { user } = useContext(AuthContext);
+  const { user } = useContext(AuthContext);
+  const [plans, setPlans] = useState([]);
 
   const loadScript = (src) => {
     return new Promise((resolve) => {
@@ -61,34 +64,26 @@ const Payment = () => {
     paymentObject.open();
   };
 
-  const plans = [
-    {
-        name: 'Free',
-        amount: 0,
-        features: ['All Content', 'Mobile Devices Only', 'Max quality: 360p']
-    },
-    {
-      name: 'Standard',
-      amount: 10 ,
-      features: ['All Free Features', 'Mobile Devices Only', 'Max Quality: 720p']
-    },
-    {
-      name: 'Premium',
-      amount: 30,
-      features: ['All Standard Features', 'Larger Devices too', 'Full HD Quality']
-    },
-    {
-      name: 'Rental',
-      amount: 10,
-      features: ['All Premium Features', 'Movie limit: 1', 'Validity: 24h']
+  const fetchPlans = async () => {
+    try {
+      const plansQuery = query(collection(db, 'plans'), orderBy('amount', 'asc'));
+      const planData = await getDocs(plansQuery);
+      const plansArray = planData.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      setPlans(plansArray);
+    } catch (error) {
+      console.log("Error fetching plans", error);
     }
-  ];
+  }
+
+  useEffect(() => {
+    fetchPlans();
+  }, []);
 
   return (
     <PricingContainer>
         {
             plans.map((plan, index) => (
-                <PricingCard key={index} title={plan.name} price={plan.amount} features={plan.features} onclick={() => displayRazorpay(plan)} />
+              <PricingCard key={index} title={plan.name} price={plan.amount} features={plan.features} onclick={() => displayRazorpay(plan)} />
             ))
         }
     </PricingContainer>

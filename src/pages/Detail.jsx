@@ -1,4 +1,4 @@
-import { useEffect, useState, useContext } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import styled from "styled-components";
 import { db } from "../lib/firebase";
@@ -9,11 +9,15 @@ import { AuthContext } from "../contexts/AuthContext";
 import Plyr from 'plyr-react';
 import "plyr-react/plyr.css";
 import Confirmation from "../components/Confirmation";
+import { LuFileSignature } from "react-icons/lu";
+import Countdown from 'react-countdown';
 
 const Detail = () => {
   const { id } = useParams();
   const [detailData, setDetailData] = useState({});
   const [watchlistIcon, setWatchlistIcon] = useState(false);
+  const [rented, setRented] = useState(false);
+  const [rentalExpiration, setRentalExpiration] = useState(null);
   const [movie, setMovie] = useState('');
   const [videoKey, setVideoKey] = useState(Date.now());
   const { user } = useContext(AuthContext);
@@ -32,6 +36,14 @@ const Detail = () => {
         const watchlistDoc = await getDoc(doc(db, "users", user.uid, "watchlist", id));
         if (watchlistDoc.exists()) {
           setWatchlistIcon(true);
+        }
+
+        const rentedDoc = await getDoc(doc(db, "users", user.uid, "rentals", id));
+        if (rentedDoc.exists()) {
+          const { createdAt } = rentedDoc.data();
+          const expirationTime = new Date(createdAt).getTime() + 24 * 60 * 60 * 1000;
+          setRentalExpiration(expirationTime);
+          setRented(true);
         }
       } catch (error) {
         console.error("Error fetching data:", error);
@@ -66,6 +78,72 @@ const Detail = () => {
     }
   };
 
+  const isRentalValid = () => {
+    if (rentalExpiration) {
+      return Date.now() < rentalExpiration;
+    }
+    return false;
+  };
+
+  const loadScript = (src) => {
+    return new Promise((resolve) => {
+      const script = document.createElement('script');
+      script.src = src;
+      script.onload = () => {
+        resolve(true);
+      };
+      script.onerror = () => {
+        resolve(false);
+      };
+      document.body.appendChild(script);
+    });
+  };
+
+  const displayRazorpay = async () => {
+    const res = await loadScript('https://checkout.razorpay.com/v1/checkout.js');
+
+    if (!res) {
+      alert('Razorpay SDK failed to load. Are you online?');
+      return;
+    }
+
+    const options = {
+      key: `${import.meta.env.VITE_RAZORPAY_KEY_ID}`, 
+      amount: 10 * 100,
+      currency: 'INR',
+      name: 'Tribesflix',
+      description: 'Subscription Payment',
+      image: 'https://i.postimg.cc/wMVZwWkB/tribesflix.png',
+      handler: async function (response) {
+        alert(`Payment Successful: ${response.razorpay_payment_id}`);
+        if(!rented) {
+          setRented(true);
+          const createdAt = new Date().toISOString();
+          await setDoc(doc(collection(db, "users", user.uid, "rentals"), detailData.id), {
+            ...detailData,
+            createdAt
+          });
+          const expirationTime = new Date(createdAt).getTime() + 24 * 60 * 60 * 1000;
+          setRentalExpiration(expirationTime);
+        }
+      },
+      prefill: {
+        name: 'Tribesflix',
+        email: 'gitafoodproducts@gmail.com',
+        contact: '9002330168'
+      },
+      notes: {
+        address: 'Asanol, West Bengal, India'
+      },
+      theme: {
+        color: '#3399cc'
+      }
+    };
+
+    const paymentObject = new window.Razorpay(options);
+    paymentObject.open();
+  };
+
   const getTranscodedUrl = (quality) => {
     const qualityMapping = {
       '1080p': 'f_auto,q_100',
@@ -77,6 +155,15 @@ const Detail = () => {
     const newUrl = detailData.movieURL.replace('/upload/', `/upload/${transformation}/`);
     setMovie(newUrl);
     setVideoKey(Date.now()); 
+  };
+
+  const renderer = ({ hours, minutes, seconds, completed }) => {
+    if (completed) {
+      setRented(false);
+      return <span>Rental expired</span>;
+    } else {
+      return <span>Rental expires in: {hours}h {minutes}m {seconds}s</span>;
+    }
   };
 
   return (
@@ -127,7 +214,7 @@ const Detail = () => {
                   />
                   <Box>
                     {
-                      user?.subscription === "Premium" ? (
+                      user?.subscription === "Premium" || rented ? (
                         <QualitySwitch onClick={() => getTranscodedUrl('1080p')}>
                           1080p
                         </QualitySwitch>
@@ -144,7 +231,7 @@ const Detail = () => {
                       )
                     }
                     {
-                      user?.subscription === "Standard" ? (
+                      user?.subscription === "Standard" || rented ? (
                         <QualitySwitch onClick={() => getTranscodedUrl('720p')}>
                           720p
                         </QualitySwitch>
@@ -154,7 +241,7 @@ const Detail = () => {
                         </QualitySwitch>} modal nested>
                             {
                               close => (
-                                <Confirmation title={"Upgrade to Premium Plan"} onclick={() => close()} />
+                                <Confirmation title={"Upgrade to Standard Plan"} onclick={() => close()} />
                               )
                             }
                           </Popup>
@@ -218,6 +305,19 @@ const Detail = () => {
               <FaShare />
             </div>
           </GroupWatch>
+          {
+            rented ? (
+              <Timer>
+                <Countdown date={rentalExpiration} renderer={renderer} />
+              </Timer>
+            ) : (
+              <GroupWatch onClick={displayRazorpay}>
+                <div>
+                  <LuFileSignature />
+                </div>
+              </GroupWatch>
+            )
+          }
         </Controls>
         <SubTitle>{detailData.subTitle}</SubTitle>
         <Description>{detailData.description}</Description>
@@ -228,7 +328,7 @@ const Detail = () => {
 
 const Container = styled.div`
   position: relative;
-  min-height: calc(100vh-250px);
+  min-height: calc(100vh - 250px);
   overflow-x: hidden;
   display: block;
   top: 72px;
@@ -420,6 +520,7 @@ const GroupWatch = styled.div`
   align-items: center;
   cursor: pointer;
   background: white;
+  margin-right: 15px;
 
   div {
     height: 40px;
@@ -434,6 +535,12 @@ const GroupWatch = styled.div`
       font-size: 18px;
     }
   }
+`;
+
+const Timer = styled.div`
+  color: white;
+  font-size: 18px;
+  font-weight: bold;
 `;
 
 const SubTitle = styled.div`
