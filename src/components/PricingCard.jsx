@@ -1,13 +1,14 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import Popup from 'reactjs-popup';
 import styled from 'styled-components';
+import Confirmation from './Confirmation';
 
 const Card = styled.div`
   border-radius: 8px;
   padding: 20px;
   margin: 10px;
   width: 200px;
-  text-align: center;
+  text-align: left;
   background-color: #f7f7f7;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   transition: transform 0.3s ease-in-out;
@@ -61,8 +62,8 @@ const PricingCard = ({ title, price, features, onclick }) => {
 
   return (
     <Card>
-      <Title>{title} Plan</Title>
-      <Price>INR {price}</Price>
+      <Title>{title}</Title>
+      <Price>INR {price}<span style={{fontSize: '14px'}}></span></Price>
       <FeatureList>
         {features.map((feature, index) => (
           <FeatureItem key={index}>{feature}</FeatureItem>
@@ -70,9 +71,15 @@ const PricingCard = ({ title, price, features, onclick }) => {
       </FeatureList>
       {
         title === "Free" ? (
-          <Button onClick={alreadyFree}>
+          <Popup overlayStyle={{ background: 'rgba(0, 0, 0, .5)' }} trigger={<Button>
             Get Started
-          </Button>
+          </Button>} modal nested>
+            {
+              close => (
+                <Confirmation title={"Currently using Free Plan"} onclick={() => close()} />
+              )
+            }
+          </Popup>
         ) : (
           <Button onClick={onclick}>
             Get Started

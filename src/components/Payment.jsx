@@ -41,7 +41,7 @@ const Payment = () => {
       handler: async function (response) {
         alert(`Payment Successful: ${response.razorpay_payment_id}`);
         await updateDoc(doc(db, 'users', user?.uid), {
-            subscription: plan.name
+          subscription: plan.name
         });
       },
       prefill: {
@@ -65,17 +65,22 @@ const Payment = () => {
     {
         name: 'Free',
         amount: 0,
-        features: ['Feature 1', 'Feature 2', 'Feature 3']
+        features: ['All Content', 'Mobile Devices Only', 'Max quality: 360p']
     },
     {
       name: 'Standard',
-      amount: 2499 ,
-      features: ['All Free Features', 'Pro Feature 1', 'Pro Feature 2']
+      amount: 10 ,
+      features: ['All Free Features', 'Mobile Devices Only', 'Max Quality: 720p']
     },
     {
       name: 'Premium',
-      amount: 4499,
-      features: ['All Pro Features', 'Premium Feature 1', 'Premium Feature 2']
+      amount: 30,
+      features: ['All Standard Features', 'Larger Devices too', 'Full HD Quality']
+    },
+    {
+      name: 'Rental',
+      amount: 10,
+      features: ['All Premium Features', 'Movie limit: 1', 'Validity: 24h']
     }
   ];
 
