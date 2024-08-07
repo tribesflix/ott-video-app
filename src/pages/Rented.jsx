@@ -13,24 +13,24 @@ const Rented = () => {
 
   const { user } = useContext(AuthContext);
 
-//   useEffect(() => {
-//     const fetchData = async () => {
-//       try {
-//         const unsubscribe = await getDocs(
-//           collection(doc(db, "users", user.uid), "rented")
-//         );
-//         const rentedData = unsubscribe.docs.map((doc) => ({
-//           id: doc.id,
-//           ...doc.data(),
-//         }));
-//         setRented(rentedData);
-//       } catch (err) {
-//         console.error("Error", err);
-//       }
-//     };
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const unsubscribe = await getDocs(
+          collection(doc(db, "users", user.uid), "rentals")
+        );
+        const rentedData = unsubscribe.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
+        setRented(rentedData);
+      } catch (err) {
+        console.error("Error", err);
+      }
+    };
 
-//     fetchData();
-//   }, []);
+    fetchData();
+  }, []);
 
   return (
     <Container>
