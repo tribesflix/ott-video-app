@@ -2,12 +2,20 @@ import React from 'react';
 import { useContext } from 'react';
 import { AuthContext } from '../contexts/AuthContext';
 import styled from 'styled-components';
-import PricingCard from '../components/PricingCard';
 import Payment from '../components/Payment';
+import { useNavigate } from 'react-router-dom';
+import { useEffect } from 'react';
 
 const Profile = () => {
 
     const { user, handleSignOut } = useContext(AuthContext);
+    const navigate = useNavigate();
+
+    useEffect(() => {
+      if(!user) {
+        navigate('/login');
+      }
+    }, [user]);
 
     return (
         <Container>

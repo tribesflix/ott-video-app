@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { collection, doc, getDocs } from "firebase/firestore";
 import { db } from "../lib/firebase";
@@ -12,6 +12,13 @@ const Watchlist = () => {
   const [watchlist, setWatchlist] = useState([]);
 
   const { user } = useContext(AuthContext);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if(!user) {
+      navigate('/login');
+    }
+  }, [user]);
 
   useEffect(() => {
     const fetchData = async () => {
