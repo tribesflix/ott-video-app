@@ -33,7 +33,7 @@ const AuthState = ({ children }) => {
             ? 3 
             : 3;
 
-            if (devices.length >= deviceLimit && !devices.includes(deviceId)) {
+            if (devices.length > deviceLimit && !devices.includes(deviceId)) {
                 return false;
             }
 

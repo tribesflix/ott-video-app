@@ -1,11 +1,18 @@
-import React, { useContext } from "react";
-import { Link } from "react-router-dom";
+import React, { useContext, useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import { AuthContext } from "../contexts/AuthContext";
 
 const Signup = () => {
 
-  const { createUser, setCreateUser, handleGoogleSignup, handleManualSignup } = useContext(AuthContext);
+  const { user, createUser, setCreateUser, handleGoogleSignup, handleManualSignup } = useContext(AuthContext);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if(user) {
+      navigate('/home');
+    }
+  }, [user]);
 
   return (
     <Container>

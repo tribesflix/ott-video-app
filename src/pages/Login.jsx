@@ -12,7 +12,7 @@ const Login = () => {
     if(user) {
       navigate('/home');
     }
-  }, []);
+  }, [user]);
 
   return (
     <Container>
