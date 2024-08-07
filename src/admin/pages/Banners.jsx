@@ -5,19 +5,24 @@ import { getDownloadURL, ref, uploadBytes } from 'firebase/storage';
 import { db, storage } from '../../lib/firebase';
 import { addDoc, collection, getDocs, orderBy, query, serverTimestamp } from 'firebase/firestore';
 import BannerItem from '../components/BannerItem';
+import Spinner from '../../components/Spinner';
 
 const Banners = () => {
     const [banners, setBanners] = useState([]);
     const [banner, setBanner] = useState(null);
+    const [loading, setLoading] = useState(false);
 
     useEffect(() => {
         const fetchData = async () => {
             try {
+                setLoading(true);
                 const bannersSnapshot = await getDocs(query(collection(db, "banners"), orderBy("createdAt", "desc")));
                 const bannersData = bannersSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
                 setBanners(bannersData);
             } catch (err) {
                 console.error(err);
+            } finally {
+                setLoading(false);
             }
         }
 
@@ -35,6 +40,7 @@ const Banners = () => {
         const storageRef = ref(storage, `banners/${banner.name}`);
 
         try {
+            setLoading(true);
             await uploadBytes(storageRef, banner);
             const downloadURL = await getDownloadURL(storageRef);
 
@@ -50,6 +56,8 @@ const Banners = () => {
             setBanners(bannersData);
         } catch (error) {
             console.error("Error uploading file:", error);
+        } finally {
+            setLoading(false);
         }
     }
 
@@ -59,6 +67,9 @@ const Banners = () => {
 
     return (
         <Layout>
+            {
+                loading && (<Spinner />)
+            }
             <Container>
                 <Box>
                     <Heading>
