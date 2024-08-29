@@ -50,6 +50,15 @@ const Watchlist = () => {
                 }
               >
                 <img src={movie.cardImg} alt={movie.title} />
+                <PlayButton>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 24 24"
+                    fill="currentColor"
+                  >
+                    <path d="M3 22v-20l18 10-18 10z" />
+                  </svg>
+                </PlayButton>
               </Link>
             </Wrap>
           ))
@@ -115,6 +124,31 @@ const Wrap = styled.div`
       rgb(0 0 0 / 72%) 0px 30px 22px -10px;
     transform: scale(1.05);
     border-color: rgba(249, 249, 249, 0.8);
+  }
+`;
+const PlayButton = styled.div`
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 50px;
+  height: 50px;
+  background-color: rgba(0, 0, 0, 0.6);
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  opacity: 0;
+  transition: opacity 0.3s ease-out;
+
+  svg {
+    width: 30px;
+    height: 30px;
+    fill: #fff;
+  }
+
+  ${Wrap}:hover & {
+    opacity: 1;
   }
 `;
 

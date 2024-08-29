@@ -19,7 +19,9 @@ import Banners from './admin/pages/Banners';
 import Editors from './admin/pages/Editors';
 import Footer from './components/Footer';
 import Splash from './components/Splash';
-// 
+import About from './pages/About';
+import Contact from './pages/Contact';
+import PrivacyPolicy from './pages/Privacy-Policy';
 const App = () => {
   const [openNav, setOpenNav] = useState(false);
   const [adminRoute, setAdminRoute] = useState(false);
@@ -66,6 +68,9 @@ const AppContent = ({ openNav, setOpenNav, setAdminRoute, adminRoute }) => {
         <Route path='/series/:id' element={<Episodes />} />
         <Route path='/watchlist' element={<Watchlist />} />
         <Route path='/search' element={<Search />} />
+        <Route path='/about' element={<About/>} />
+        <Route path='/contact' element={<Contact/>} />
+        <Route path='/privacy-policy' element={<PrivacyPolicy/>} />
         {adminRoute && isAdmin && (
           <>
             <Route path='/super-admin/dashboard' element={<Dashboard />} />

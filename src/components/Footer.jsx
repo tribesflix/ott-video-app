@@ -50,17 +50,17 @@ const Footer = () => {
           <h2 style={titleStyle}>Explore</h2>
           <ul style={{ listStyle: 'none', padding: 0 }}>
             <li style={{ marginBottom: '0.5rem' }}>
-              <Link to="/" style={linkStyle}>
+              <Link to="/about" style={linkStyle}>
                 <FaInfoCircle style={iconStyle} /> About
               </Link>
             </li>
             <li style={{ marginBottom: '0.5rem' }}>
-              <Link to="/" style={linkStyle}>
+              <Link to="/contact" style={linkStyle}>
                 <FaEnvelope style={iconStyle} /> Contact
               </Link>
             </li>
             <li>
-              <Link to="/" style={linkStyle}>
+              <Link to="/privacy-policy" style={linkStyle}>
                 <FaShieldAlt style={iconStyle} /> Privacy Policy
               </Link>
             </li>
@@ -90,7 +90,7 @@ const Footer = () => {
       <hr style={hrStyle} /> {/* Horizontal line */}
       <div style={{ textAlign: 'center', marginTop: '1.5rem', height: '100px' }}> {/* Adjusted margin from the top and set height */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <img src="/images/tribesflix.png" alt="WebWonderz Logo" style={{ width: '100px', marginRight: '10px' }} /> {/* WebWonderz Logo */}
+          <Link to='/'><img src="/images/tribesflix.png" alt="WebWonderz Logo" style={{ width: '100px', marginRight: '10px' }} /></Link> {/* WebWonderz Logo */}
           <p>&copy; 2024 WebWonderz. All Rights Reserved.</p>
         </div>
         <p>Overall client rating is 4.8 out of 5.0 for Web Wonderz by 425+ Clients</p>
