@@ -6,10 +6,10 @@ import { db } from "../lib/firebase";
 import { useContext } from "react";
 import { AuthContext } from "../contexts/AuthContext";
 
-const Watchlist = () => {
+const Rented = () => {
 
-  // Fetches content present in user's watchlist
-  const [watchlist, setWatchlist] = useState([]);
+  // Fetches content present in user's rented
+  const [rented, setRented] = useState([]);
 
   const { user } = useContext(AuthContext);
   const navigate = useNavigate();
@@ -24,13 +24,13 @@ const Watchlist = () => {
     const fetchData = async () => {
       try {
         const unsubscribe = await getDocs(
-          collection(doc(db, "users", user.uid), "watchlist")
+          collection(doc(db, "users", user.uid), "rentals")
         );
-        const watchlistData = unsubscribe.docs.map((doc) => ({
+        const rentedData = unsubscribe.docs.map((doc) => ({
           id: doc.id,
           ...doc.data(),
         }));
-        setWatchlist(watchlistData);
+        setRented(rentedData);
       } catch (err) {
         console.error("Error", err);
       }
@@ -41,12 +41,12 @@ const Watchlist = () => {
 
   return (
     <Container>
-      <h4>Your Watchlist</h4>
+      <h4>Rented Movies</h4>
       <Content>
-        {watchlist.length === 0 ? (
-          <Info>No movies added</Info>
+        {rented.length === 0 ? (
+          <Info>No movies rented</Info>
         ) : (
-          watchlist.map((movie, key) => (
+          rented.map((movie, key) => (
             <Wrap key={key}>
               {movie.id}
               <Link
@@ -57,15 +57,6 @@ const Watchlist = () => {
                 }
               >
                 <img src={movie.cardImg} alt={movie.title} />
-                <PlayButton>
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 24 24"
-                    fill="currentColor"
-                  >
-                    <path d="M3 22v-20l18 10-18 10z" />
-                  </svg>
-                </PlayButton>
               </Link>
             </Wrap>
           ))
@@ -133,30 +124,5 @@ const Wrap = styled.div`
     border-color: rgba(249, 249, 249, 0.8);
   }
 `;
-const PlayButton = styled.div`
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 50px;
-  height: 50px;
-  background-color: rgba(0, 0, 0, 0.6);
-  border-radius: 50%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  opacity: 0;
-  transition: opacity 0.3s ease-out;
 
-  svg {
-    width: 30px;
-    height: 30px;
-    fill: #fff;
-  }
-
-  ${Wrap}:hover & {
-    opacity: 1;
-  }
-`;
-
-export default Watchlist;
+export default Rented;

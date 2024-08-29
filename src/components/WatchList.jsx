@@ -3,22 +3,22 @@ import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { collection, doc, getDocs } from "firebase/firestore";
 import { db } from "../lib/firebase";
-import { useSelector } from "react-redux";
-import { selectUID } from "../features/user/userSlice";
+import { useContext } from "react";
+import { AuthContext } from "../contexts/AuthContext";
 
 const WatchList = () => {
 
+  const { user } = useContext(AuthContext);
+
   // Content added by user to his watchlist
   const [watchlist, setWatchlist] = useState([]);
-
-  const user = useSelector(selectUID);
 
   // Creates a subcollection "WATCHLIST" and stores those docs there and fetches
   useEffect(() => {
     const fetchData = async () => {
       try {
         const unsubscribe = await getDocs(
-          collection(doc(db, "users", user), "watchlist")
+          collection(doc(db, "users", user.uid), "watchlist")
         );
         const watchlistData = unsubscribe.docs.map((doc) => ({
           id: doc.id,

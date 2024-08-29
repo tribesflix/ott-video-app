@@ -1,62 +1,75 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import styled from "styled-components";
 import { db } from "../lib/firebase";
 import { collection, doc, getDoc, getDocs, orderBy, query } from "firebase/firestore";
 import Popup from "reactjs-popup";
-import { FaArrowCircleLeft } from "react-icons/fa";
-import ShakaPlayer from 'shaka-player-react';
-import 'shaka-player-react/dist/controls.css';
-import { FaShare } from "react-icons/fa";
+import { FaArrowCircleLeft, FaShare } from "react-icons/fa";
+import Plyr from 'plyr-react';
+import "plyr-react/plyr.css";
+import { useContext } from "react";
+import { AuthContext } from "../contexts/AuthContext";
 
 const SeriesDetail = () => {
-  
-  // Access content ID and episode ID from params
   const { id, episodeId } = useParams();
-
-  // Access content meta data
   const [detailData, setDetailData] = useState({});
-
-  // Fetch all docs in EPISODES subcollection
   const [episodes, setEpisodes] = useState([]);
-
+  const [movie, setMovie] = useState('');
+  const [videoKey, setVideoKey] = useState(Date.now());
   const [currentEpisodeIndex, setCurrentEpisodeIndex] = useState(0);
-  let navigate = useNavigate();
-
   const [isPopupOpen, setIsPopupOpen] = useState(false);
+  const { user } = useContext(AuthContext);
+
+  let navigate = useNavigate();
+  const playerRef = useRef(null);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // Fetch episode
         const movieDoc = await getDoc(doc(db, "movies", id, "episodes", episodeId));
         if (movieDoc.exists()) {
           setDetailData({ id: movieDoc.id, ...movieDoc.data() });
+          setMovie(movieDoc.data().episodeURL);
         } else {
           console.log("No such document exists");
         }
 
-        // Fetch all episodes
         const episodesSnapshot = await getDocs(
           query(collection(db, "movies", id, "episodes"), orderBy("episodeNumber", "asc"))
         );
         const episodesData = episodesSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
         setEpisodes(episodesData);
 
+        // Set current episode index
+        const currentIndex = episodesData.findIndex(episode => episode.id === episodeId);
+        setCurrentEpisodeIndex(currentIndex);
+
       } catch (error) {
         console.error("Error fetching data:", error);
       }
     };
-  
+
     fetchData();
   }, [id, episodeId]);
 
   useEffect(() => {
-    // Open the Popup when the component mounts
     setIsPopupOpen(true);
   }, []);
 
-  // Share episodes to social media
+  useEffect(() => {
+    const player = playerRef.current?.plyr;
+
+    if (player) {
+      player.on('ended', navigateToNextEpisode);
+    }
+
+    return () => {
+      if (player) {
+        player.off('ended', navigateToNextEpisode);
+      }
+    };
+  }, [currentEpisodeIndex, episodes]);
+
   const handleShare = async () => {
     if (navigator.share) {
       try {
@@ -70,16 +83,27 @@ const SeriesDetail = () => {
     } else {
       console.log("Web Share API not supported");
     }
-  }
+  };
 
-  // Automatically play next episode after one ends
+  const getTranscodedUrl = (quality) => {
+    const qualityMapping = {
+      '1080p': 'f_auto,q_100',
+      '720p': 'f_auto,q_75',
+      '480p': 'f_auto,q_50',
+      '240p': 'f_auto,q_20'
+    };
+    const transformation = qualityMapping[quality];
+    const newUrl = detailData.episodeURL.replace('/upload/', `/upload/${transformation}/`);
+    setMovie(newUrl);
+    setVideoKey(Date.now());
+  };
+
   const navigateToNextEpisode = () => {
-    setCurrentEpisodeIndex(prevIndex => prevIndex + 1);
     if (currentEpisodeIndex < episodes.length - 1) {
       const nextEpisodeId = episodes[currentEpisodeIndex + 1].id;
       navigate(`/series/detail/${id}/${nextEpisodeId}`);
     }
-  }
+  };
 
   return (
     <Container>
@@ -94,43 +118,85 @@ const SeriesDetail = () => {
         <Controls>
           <Popup
             trigger={
-              <Player>
+              <PlayerButton>
                 <img src="/images/play-icon-black.png" alt="" />
                 <span>Play</span>
-              </Player>
+              </PlayerButton>
             }
             open={isPopupOpen}
             onClose={() => setIsPopupOpen(false)}
             modal
             nested
           >
-            {
-              (close) => (
-                <Modal>
-                  <MenuBar>
-                    <CloseBtn onClick={() => close()}>
-                      <FaArrowCircleLeft />
-                    </CloseBtn>
-                    <Description>{detailData.title}</Description>
-                  </MenuBar>
-                  <ShakaPlayer autoPlay src={detailData.episodeURL} onEnded={navigateToNextEpisode} />
-                  <Box>
-                    <QualitySwitch >
-                      1080p
-                    </QualitySwitch>
-                    <QualitySwitch>
-                      720p
-                    </QualitySwitch>
-                    <QualitySwitch>
-                      480p
-                    </QualitySwitch>
-                    <QualitySwitch>
-                      360p
-                    </QualitySwitch>
-                  </Box>
-                </Modal>
-              )
-            }
+            {(close) => (
+              <Modal>
+                <MenuBar>
+                  <CloseBtn onClick={() => close()}>
+                    <FaArrowCircleLeft />
+                  </CloseBtn>
+                  <Description>{detailData.title}</Description>
+                </MenuBar>
+                <Plyr
+                  ref={playerRef}
+                  source={{
+                    type: 'video',
+                    sources: [
+                      {
+                        src: movie,
+                        type: 'video/mp4',
+                      },
+                    ],
+                  }}
+                  options={{
+                    autoplay: true,
+                    controls: ['rewind', 'play', 'fast-forward', 'progress', 'current-time', 'mute', 'volume', 'settings', 'fullscreen', 'pip'],
+                    settings: ['speed']
+                  }}
+                />
+                <Box>
+                {
+                      user?.subscription === "Premium" ? (
+                        <QualitySwitch onClick={() => getTranscodedUrl('1080p')}>
+                          1080p
+                        </QualitySwitch>
+                      ) : (
+                        <Popup overlayStyle={{ background: 'rgba(0, 0, 0, .5)' }} trigger={<QualitySwitch>
+                        1080p
+                      </QualitySwitch>} modal nested>
+                          {
+                            close => (
+                              <Confirmation title={"Upgrade to Premium Plan"} onclick={() => close()} />
+                            )
+                          }
+                        </Popup>
+                      )
+                    }
+                    {
+                      user?.subscription === "Standard" ? (
+                        <QualitySwitch onClick={() => getTranscodedUrl('720p')}>
+                          720p
+                        </QualitySwitch>
+                      ) : (
+                        <Popup overlayStyle={{ background: 'rgba(0, 0, 0, .5)' }} trigger={<QualitySwitch>
+                          720p
+                        </QualitySwitch>} modal nested>
+                            {
+                              close => (
+                                <Confirmation title={"Upgrade to Premium Plan"} onclick={() => close()} />
+                              )
+                            }
+                          </Popup>
+                      )
+                    }
+                  <QualitySwitch onClick={() => getTranscodedUrl('480p')}>
+                    480p
+                  </QualitySwitch>
+                  <QualitySwitch onClick={() => getTranscodedUrl('240p')}>
+                    240p
+                  </QualitySwitch>
+                </Box>
+              </Modal>
+            )}
           </Popup>
           <Popup
             trigger={
@@ -142,21 +208,32 @@ const SeriesDetail = () => {
             modal
             nested
           >
-            {
-              (close) => (
-                <Modal>
-                  <MenuBar>
-                    <CloseBtn onClick={() => close()}>
-                      <FaArrowCircleLeft />
-                    </CloseBtn>
-                    <Description>{detailData.title} - Trailer</Description>
-                  </MenuBar>
-                  <Video controls={true} autoPlay controlsList="nodownload">
-                    <source src={detailData.trailerURL} type="video/mp4" />
-                  </Video>
-                </Modal>
-              )
-            }
+            {(close) => (
+              <Modal>
+                <MenuBar>
+                  <CloseBtn onClick={() => close()}>
+                    <FaArrowCircleLeft />
+                  </CloseBtn>
+                  <Description>{detailData.title} - Trailer</Description>
+                </MenuBar>
+                <Plyr
+                  source={{
+                    type: 'video',
+                    sources: [
+                      {
+                        src: detailData.trailerURL,
+                        type: 'video/mp4',
+                      },
+                    ],
+                  }}
+                  options={{
+                    autoplay: true,
+                    controls: ['rewind', 'play', 'fast-forward', 'progress', 'current-time', 'mute', 'volume', 'settings', 'fullscreen', 'pip'],
+                    settings: ['speed']
+                  }}
+                />
+              </Modal>
+            )}
           </Popup>
           <GroupWatch onClick={handleShare}>
             <div>
@@ -251,7 +328,7 @@ const Controls = styled.div`
   min-height: 56px;
 `;
 
-const Player = styled.button`
+const PlayerButton = styled.button`
   font-size: 15px;
   margin: 0px 22px 0px 0px;
   padding: 0px 24px;
@@ -288,7 +365,7 @@ const Player = styled.button`
   }
 `;
 
-const Trailer = styled(Player)`
+const Trailer = styled(PlayerButton)`
   background: rgba(0, 0, 0, 0.3);
   border: 1px solid rgb(249, 249, 249);
   color: rgb(249, 249, 249);

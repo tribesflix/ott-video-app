@@ -22,6 +22,7 @@ import {
 } from "firebase/storage";
 import EpisodeItem from "./EpisodeItem";
 import Loader from "./Loader";
+import axios from "axios";
 
 const UploadItem = ({ movie, setContent }) => {
 
@@ -163,18 +164,23 @@ const UploadItem = ({ movie, setContent }) => {
   const [episodeNumber, setEpisodeNumber] = useState("");
   const [episodeFile, setEpisodeFile] = useState(null);
 
+  const uploadToCloudinary = async (file) => {
+    const url = `https://api.cloudinary.com/v1_1/dvqdujipe/video/upload`;
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('upload_preset', 'uploading-content');
+
+    const response = await axios.post(url, formData);
+    return response.data.secure_url;
+  };
+
   const handleAddEpisode = async (event) => {
     event.preventDefault();
     try {
       setEpisodeLoad(true);
       // Uploading new episode file to storage bucket
       if (episodeFile) {
-        const storageRef = ref(
-          storage,
-          `movies/${updateContentData.title}/episodes/${episodeNumber}.mp4`
-        );
-        await uploadBytes(storageRef, episodeFile);
-        const episodeDownloadURL = await getDownloadURL(storageRef);
+        const episodeDownloadURL = await uploadToCloudinary(episodeFile);
         if(episodeDownloadURL) {
           setEpisodeLoad(false);
         }

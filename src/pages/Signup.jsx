@@ -1,104 +1,18 @@
-import { GoogleAuthProvider, createUserWithEmailAndPassword, onAuthStateChanged, signInWithPopup, updateProfile } from "firebase/auth";
-import React, { useEffect, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import React, { useContext, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import styled from "styled-components";
-import { selectUserName, setUserLoginDetails } from "../features/user/userSlice";
-import { auth, db } from "../lib/firebase";
-import { doc, getDoc, serverTimestamp, setDoc } from "firebase/firestore";
+import { AuthContext } from "../contexts/AuthContext";
 
 const Signup = () => {
 
-  const dispatch = useDispatch();
+  const { user, createUser, setCreateUser, handleGoogleSignup, handleManualSignup } = useContext(AuthContext);
   const navigate = useNavigate();
-  const username = useSelector(selectUserName);
-
-  const [createUser, setCreateUser] = useState({ name: "", email: "", password: "" });
-
-  const handleGoogleSignup = async () => {
-    if(!username) {
-      const provider = new GoogleAuthProvider();
-      try {
-        const result = await signInWithPopup(auth, provider);
-        setUser(result.user);
-
-        const userRef = doc(db, 'users', result.user.uid);
-        const userDoc = await getDoc(userRef);
-
-        if(!userDoc.exists()) {
-          await setDoc(userRef, {
-            name: result.user.displayName,
-            email: result.user.email,
-            photo: result.user.photoURL,
-            type: "user",
-            createdAt: serverTimestamp()
-          });
-        }
-
-      } catch (error) {
-          console.error(error);
-      }
-    } else {
-      console.log("User already exists");
-    }
-  }
-
-  const handleManualSignup = async (event) => {
-    event.preventDefault();
-    if(!username) {
-      try {
-        const result = await createUserWithEmailAndPassword(auth, createUser.email, createUser.password);
-        const editUser = result.user;
-
-        await updateProfile(editUser, {
-          displayName: createUser.name,
-          photoURL: '/images/signed.jpg'
-        });
-
-        const userRef = doc(db, 'users', result.user.uid);
-        const userDoc = await getDoc(userRef);
-
-        if(!userDoc.exists()) {
-          await setDoc(userRef, {
-            name: editUser.displayName,
-            email: editUser.email,
-            photo: editUser.photoURL,
-            type: "user",
-            createdAt: serverTimestamp()
-          });
-        }
-
-        setUser(editUser);
-
-        setCreateUser({ name: "", email: "", password: "" });
-
-      } catch(err) {
-        console.error(err);
-      }
-    } else {
-      console.log("User already exists");
-    }
-  }
 
   useEffect(() => {
-    onAuthStateChanged(auth, user => {
-      if(user) {
-        setUser(user);
-        navigate('/home');
-      }
-    });
-  }, [username]);
-
-  const setUser = (user) => {
-    dispatch(
-      setUserLoginDetails({
-        id: user.uid,
-        name: user.displayName,
-        email: user.email,
-        photo: user.photoURL
-      })
-    );
-  }
+    if(user) {
+      navigate('/home');
+    }
+  }, [user]);
 
   return (
     <Container>
@@ -211,6 +125,7 @@ const SignUp = styled.button`
   align-items: center;
   justify-content: center;
   gap: 25px;
+  cursor: pointer;
 
   &:hover {
     background-color: #0483ee;

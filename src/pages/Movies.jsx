@@ -1,8 +1,10 @@
 import styled from "styled-components";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { collection, onSnapshot, query } from "firebase/firestore";
 import { db } from "../lib/firebase";
+import { useContext } from "react";
+import { AuthContext } from "../contexts/AuthContext";
 
 const Movies = () => {
 
@@ -22,6 +24,15 @@ const Movies = () => {
 
     return unsubscribe;
   }, []);
+
+  const { user } = useContext(AuthContext);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if(!user) {
+      navigate('/login');
+    }
+  }, [user]);
 
   return (
     <Container>

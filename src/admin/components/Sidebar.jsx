@@ -1,49 +1,30 @@
-import React, { useEffect } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { Link, useNavigate } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import styled from 'styled-components';
-import { selectUserName, selectUserPhoto, setSignOutState, setUserLoginDetails } from '../../features/user/userSlice';
-import { onAuthStateChanged } from 'firebase/auth';
-import { auth } from '../../lib/firebase';
 import { MdDashboard } from "react-icons/md";
 import { FaCloudUploadAlt, FaUsers } from "react-icons/fa";
 import { CiCreditCard1 } from "react-icons/ci";
 import { GoCodeReview } from "react-icons/go";
+import { useContext } from 'react';
+import { AuthContext } from '../../contexts/AuthContext';
+import { RiMoneyDollarCircleFill } from "react-icons/ri";
 
-const Sidebar = ({ openSideBar, setOpenSideBar }) => {
+const Sidebar = ({ openSideBar }) => {
 
-    const dispatch = useDispatch();
-    const navigate = useNavigate();
-    const username = useSelector(selectUserName);
-    const userPhoto = useSelector(selectUserPhoto);
+    const [isEditor, setIsEditor] = useState(false);
 
-    const handleSignOut = async () => {
-        if(username) {
-        auth.signOut().then(() => {
-            dispatch(setSignOutState());
-            navigate('/');
-        }).catch((err) => console.error(err.message));
-        }
-    }
+    const { user } = useContext(AuthContext);
+
 
     useEffect(() => {
-        onAuthStateChanged(auth, user => {
-        if(user) {
-            setUser(user);
-        }
-        });
-    }, [username]);
-
-    const setUser = (user) => {
-        dispatch(
-            setUserLoginDetails({
-                id: user.uid,
-                name: user.displayName,
-                email: user.email,
-                photo: user.photoURL
-            })
-        );
-    }
+      const fetchData = async () => {
+          if(user.type === "editor") {
+            setIsEditor(true);
+          }
+      }
+  
+      fetchData();
+    }, []);
 
     return (
         <Nav opensidebar={openSideBar.toString()}>
@@ -53,32 +34,52 @@ const Sidebar = ({ openSideBar, setOpenSideBar }) => {
           </Logo>
           </Link>
           <NavMenu>
-            <Link to="/super-admin/dashboard">
-              <MdDashboard />
-              Dashboard
-            </Link>
-            <Link to={"/super-admin/upload"}>
-              <FaCloudUploadAlt />
-              Uploads
-            </Link>
-            <Link to={"/super-admin/users"}>
-              <FaUsers />
-              Users
-            </Link>
-            <Link to={"/super-admin/banners"}>
-              <CiCreditCard1 />
-              Banners
-            </Link>
-            <Link to={"/super-admin/editors"}>
-              <GoCodeReview />
-              Editors
-            </Link>
+            {
+              isEditor ? (
+                <>
+                <Link to={"/super-admin/upload"}>
+                  <FaCloudUploadAlt />
+                  Uploads
+                </Link>
+                <Link to={"/super-admin/banners"}>
+                  <CiCreditCard1 />
+                  Banners
+                </Link>
+                </>
+              ) : (
+                <>
+                <Link to="/super-admin/dashboard">
+                  <MdDashboard />
+                  Dashboard
+                </Link>
+                <Link to={"/super-admin/upload"}>
+                  <FaCloudUploadAlt />
+                  Uploads
+                </Link>
+                <Link to={"/super-admin/users"}>
+                  <FaUsers />
+                  Users
+                </Link>
+                <Link to={"/super-admin/plans"}>
+                  <RiMoneyDollarCircleFill />
+                  Plans
+                </Link>
+                <Link to={"/super-admin/banners"}>
+                  <CiCreditCard1 />
+                  Banners
+                </Link>
+                <Link to={"/super-admin/editors"}>
+                  <GoCodeReview />
+                  Editors
+                </Link>
+                </>
+              )
+            }
           </NavMenu>
           <SignOut>
-            <UserImg src={userPhoto} alt={username}  />
-            <DropDown>
-                <span onClick={handleSignOut}>Sign Out</span>
-            </DropDown>
+            <Link to={'/profile'}>
+              <UserImg src={user.photo} alt={user.name} />
+            </Link>
           </SignOut>
         </Nav>
     )

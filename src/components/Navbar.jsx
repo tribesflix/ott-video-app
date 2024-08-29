@@ -1,52 +1,13 @@
-import React, { useEffect } from "react";
+import React from "react";
 import styled from "styled-components";
-import { auth } from "../lib/firebase";
-import { useDispatch, useSelector } from "react-redux";
-import { useNavigate } from "react-router-dom";
 import { FaXmark } from "react-icons/fa6";
-import { selectUID, selectUserName, selectUserPhoto, setSignOutState, setUserLoginDetails } from "../features/user/userSlice";
 import NavContent from "./NavContent";
-import { onAuthStateChanged } from "firebase/auth";
+import { AuthContext } from "../contexts/AuthContext";
+import { useContext } from "react";
 
 const Navbar = ({ openNav, setOpenNav, adminRoute, setAdminRoute }) => {
 
-  // Accessing logged in user credentials from store
-  const dispatch = useDispatch();
-  const navigate = useNavigate();
-  const username = useSelector(selectUserName);
-  const userPhoto = useSelector(selectUserPhoto);
-  const userId = useSelector(selectUID);
-
-  // Signout method
-  const handleSignOut = async () => {
-    if(username) {
-      auth.signOut().then(() => {
-        dispatch(setSignOutState());
-        navigate('/');
-      }).catch((err) => console.error(err.message));
-    }
-  }
-
-  // Auto fetch when user changes
-  useEffect(() => {
-    onAuthStateChanged(auth, user => {
-      if(user) {
-        setUser(user);
-      }
-    });
-  }, [username]);
-
-  // Fetch logged in user creds from store
-  const setUser = (user) => {
-    dispatch(
-      setUserLoginDetails({
-        id: user.uid,
-        name: user.displayName,
-        email: user.email,
-        photo: user.photoURL
-      })
-    );
-  }
+  const { user } = useContext(AuthContext);
 
   return (
     <Nav opennav={openNav.toString()}>
@@ -57,8 +18,8 @@ const Navbar = ({ openNav, setOpenNav, adminRoute, setAdminRoute }) => {
             <img src="/images/tribesflix.png" alt="TribesFlix" />
         </Logo>
         {
-          username ? (
-            <NavContent setOpenNav={setOpenNav} userPhoto={userPhoto} username={username} userId={userId} handleSignOut={handleSignOut} adminRoute={adminRoute} setAdminRoute={setAdminRoute} />
+          user ? (
+            <NavContent setOpenNav={setOpenNav} adminRoute={adminRoute} setAdminRoute={setAdminRoute} />
           ) : (
             <Login href={'/signup'}>Signup</Login>
           )
