@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { FaInfoCircle, FaEnvelope, FaFacebook, FaTwitter, FaInstagram, FaShieldAlt } from 'react-icons/fa';
+import { FaInfoCircle, FaEnvelope, FaFacebook, FaXTwitter, FaInstagram, FaShieldAlt } from 'react-icons/fa';
 
 const footerStyle = {
   backgroundColor: 'black',
@@ -70,17 +70,17 @@ const Footer = () => {
           <h2 style={titleStyle}>Follow Us</h2>
           <ul style={{ listStyle: 'none', padding: 0 }}>
             <li style={{ marginBottom: '0.5rem' }}>
-              <a href="#" style={linkStyle}>
+              <a href="https://www.facebook.com/profile.php?id=61554548833597&mibextid=ZbWKwL" style={linkStyle}>
                 <FaFacebook style={iconStyle} /> Facebook
               </a>
             </li>
             <li style={{ marginBottom: '0.5rem' }}>
               <a href="#" style={linkStyle}>
-                <FaTwitter style={iconStyle} /> Twitter
+                <FaXTwitter style={iconStyle} /> Twitter
               </a>
             </li>
             <li>
-              <a href="#" style={linkStyle}>
+              <a href="https://www.instagram.com/tribesflix?igsh=MXJuNDU4M3BiOTZjNg%3D%3D&utm_source=qr" style={linkStyle}>
                 <FaInstagram style={iconStyle} /> Instagram
               </a>
             </li>
