@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { FaInfoCircle, FaEnvelope, FaFacebook, FaXTwitter, FaInstagram, FaShieldAlt } from 'react-icons/fa';
-
+import { FaInfoCircle, FaEnvelope, FaFacebook,  FaInstagram, FaShieldAlt } from 'react-icons/fa';
+import { FaXTwitter } from "react-icons/fa6";
 const footerStyle = {
   backgroundColor: 'black',
   color: '#fff',
