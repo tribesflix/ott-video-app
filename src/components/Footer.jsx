@@ -91,9 +91,9 @@ const Footer = () => {
       <div style={{ textAlign: 'center', marginTop: '1.5rem', height: '100px' }}> {/* Adjusted margin from the top and set height */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           <Link to='/'><img src="/images/tribesflix.png" alt="WebWonderz Logo" style={{ width: '100px', marginRight: '10px' }} /></Link> {/* WebWonderz Logo */}
-          <p>&copy; 2024 WebWonderz. All Rights Reserved.</p>
+          <p>&copy; 2024 TribesFlix. All Rights Reserved.</p>
         </div>
-        <p>Overall client rating is 4.8 out of 5.0 for Web Wonderz by 425+ Clients</p>
+        <p>Developed By WebWonderz, Overall client rating is 4.8 out of 5.0 for Web Wonderz by 425+ Clients</p>
       </div>
     </footer>
   );

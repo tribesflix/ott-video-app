@@ -19,18 +19,15 @@ import Banners from './admin/pages/Banners';
 import Editors from './admin/pages/Editors';
 import Footer from './components/Footer';
 import Splash from './components/Splash';
-<<<<<<< HEAD
 import About from './pages/About';
 import Contact from './pages/Contact';
 import PrivacyPolicy from './pages/Privacy-Policy';
-=======
 import { Toaster } from 'react-hot-toast';
 import AuthState from './contexts/AuthContext';
 import Profile from './pages/Profile';
 import Plans from './admin/pages/Plans';
 import Rented from './pages/Rented';
 
->>>>>>> 9c949845215bf22c4034377f6828c6fea1583e66
 const App = () => {
   const [openNav, setOpenNav] = useState(false);
   const [adminRoute, setAdminRoute] = useState(false);
@@ -77,14 +74,12 @@ const AppContent = ({ openNav, setOpenNav, setAdminRoute, adminRoute }) => {
         <Route path='/series/:id' element={<Episodes />} />
         <Route path='/watchlist' element={<Watchlist />} />
         <Route path='/search' element={<Search />} />
-<<<<<<< HEAD
         <Route path='/about' element={<About/>} />
         <Route path='/contact' element={<Contact/>} />
         <Route path='/privacy-policy' element={<PrivacyPolicy/>} />
-=======
+
         <Route path='/profile' element={<Profile />} />
         <Route path='/rented' element={<Rented />} />
->>>>>>> 9c949845215bf22c4034377f6828c6fea1583e66
         {adminRoute && isAdmin && (
           <>
             <Route path='/super-admin/dashboard' element={<Dashboard />} />
