@@ -30,6 +30,7 @@ import Rented from './pages/Rented';
 import LoadingState from './contexts/LoadingContext';
 
 const App = () => {
+  
   const [openNav, setOpenNav] = useState(false);
   const [adminRoute, setAdminRoute] = useState(false);
 
