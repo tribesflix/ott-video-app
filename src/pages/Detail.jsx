@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect, useState, useRef } from "react";
 import { useParams } from "react-router-dom";
 import styled from "styled-components";
 import { db } from "../lib/firebase";
@@ -19,8 +19,8 @@ const Detail = () => {
   const [rented, setRented] = useState(false);
   const [rentalExpiration, setRentalExpiration] = useState(null);
   const [movie, setMovie] = useState('');
-  const [videoKey, setVideoKey] = useState(Date.now());
   const { user } = useContext(AuthContext);
+  const playerRef = useRef(null);  // Reference to the Plyr instance
 
   useEffect(() => {
     const fetchData = async () => {
@@ -28,7 +28,7 @@ const Detail = () => {
         const movieDoc = await getDoc(doc(db, "movies", id));
         if (movieDoc.exists()) {
           setDetailData({ id: movieDoc.id, ...movieDoc.data() });
-          setMovie(movieDoc.data().movieURL);
+          setMovie(movieDoc.data().movieURLs['480p']); // Default to 480p or adjust based on preference
         } else {
           console.log("No such document exists");
         }
@@ -145,17 +145,35 @@ const Detail = () => {
   };
 
   const getTranscodedUrl = (quality) => {
-    const qualityMapping = {
-      '1080p': 'f_auto,q_100',
-      '720p': 'f_auto,q_75',
-      '480p': 'f_auto,q_50',
-      '240p': 'f_auto,q_20'
-    };
-    const transformation = qualityMapping[quality];
-    const newUrl = detailData.movieURL.replace('/upload/', `/upload/${transformation}/`);
-    setMovie(newUrl);
-    setVideoKey(Date.now()); 
+    if (playerRef.current) {
+      const currentTime = playerRef.current.plyr.currentTime; // Get current playback time
+      localStorage.setItem('currentPlaybackTime', currentTime); // Store current time in localStorage
+    }
+
+    // Get the URL for the selected quality from detailData
+    const url = detailData.movieURLs[quality];
+    if (url) {
+      setMovie(url);
+    }
   };
+
+  useEffect(() => {
+    if (playerRef.current && movie) {
+      const storedTime = localStorage.getItem('currentPlaybackTime'); // Retrieve time from localStorage
+      playerRef.current.plyr.source = {
+        type: 'video',
+        sources: [{ src: movie, type: 'video/mp4' }]
+      };
+
+      playerRef.current.plyr.on('canplay', () => {
+        if (storedTime) {
+          playerRef.current.plyr.currentTime = parseFloat(storedTime); // Set playback time to the stored value
+          localStorage.removeItem('currentPlaybackTime'); // Clear localStorage after setting time
+        }
+        playerRef.current.plyr.play(); // Resume playback
+      });
+    }
+  }, [movie]); // Run whenever the movie source changes
 
   const renderer = ({ hours, minutes, seconds, completed }) => {
     if (completed) {
@@ -199,18 +217,14 @@ const Detail = () => {
                   <Plyr
                     source={{
                       type: 'video',
-                      sources: [
-                        {
-                          src: movie,
-                          type: 'video/mp4',
-                        },
-                      ],
+                      sources: [{ src: movie, type: 'video/mp4' }]
                     }}
                     options={{
                       autoplay: true,
-                      controls: ['rewind','play', 'fast-forward', 'progress', 'current-time', 'mute', 'volume', 'settings', 'fullscreen', 'pip'],
+                      controls: ['rewind', 'play', 'fast-forward', 'progress', 'current-time', 'mute', 'volume', 'settings', 'fullscreen', 'pip'],
                       settings: ['speed']
                     }}
+                    ref={playerRef} // Reference to the Plyr instance
                   />
                   <Box>
                     {

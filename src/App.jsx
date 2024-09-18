@@ -27,6 +27,7 @@ import AuthState from './contexts/AuthContext';
 import Profile from './pages/Profile';
 import Plans from './admin/pages/Plans';
 import Rented from './pages/Rented';
+import LoadingState from './contexts/LoadingContext';
 
 const App = () => {
   const [openNav, setOpenNav] = useState(false);
@@ -59,42 +60,44 @@ const AppContent = ({ openNav, setOpenNav, setAdminRoute, adminRoute }) => {
   };
 
   return (
-    <AuthState>
-      {!isAdmin && <MobileNav openNav={openNav} setOpenNav={setOpenNav} />}
-      {!isAdmin && <Navbar openNav={openNav} setOpenNav={setOpenNav} setAdminRoute={setAdminRoute} adminRoute={adminRoute} />}
-      {/* <Splash /> */}
-      <Routes>
-        <Route path='/' element={<Login />} />
-        <Route path='/signup' element={<Signup />} />
-        <Route path='/home' element={<Home />} />
-        <Route path='/movies/detail/:id' element={<Detail />} />
-        <Route path='/series/detail/:id/:episodeId' element={<SeriesDetail />} />
-        <Route path='/movies' element={<Movies />} />
-        <Route path='/series' element={<Series />} />
-        <Route path='/series/:id' element={<Episodes />} />
-        <Route path='/watchlist' element={<Watchlist />} />
-        <Route path='/search' element={<Search />} />
-        <Route path='/about' element={<About/>} />
-        <Route path='/contact' element={<Contact/>} />
-        <Route path='/privacy-policy' element={<PrivacyPolicy/>} />
+    <LoadingState>
+      <AuthState>
+        {!isAdmin && <MobileNav openNav={openNav} setOpenNav={setOpenNav} />}
+        {!isAdmin && <Navbar openNav={openNav} setOpenNav={setOpenNav} setAdminRoute={setAdminRoute} adminRoute={adminRoute} />}
+        {/* <Splash /> */}
+        <Routes>
+          <Route path='/' element={<Login />} />
+          <Route path='/signup' element={<Signup />} />
+          <Route path='/home' element={<Home />} />
+          <Route path='/movies/detail/:id' element={<Detail />} />
+          <Route path='/series/detail/:id/:episodeId' element={<SeriesDetail />} />
+          <Route path='/movies' element={<Movies />} />
+          <Route path='/series' element={<Series />} />
+          <Route path='/series/:id' element={<Episodes />} />
+          <Route path='/watchlist' element={<Watchlist />} />
+          <Route path='/search' element={<Search />} />
+          <Route path='/about' element={<About/>} />
+          <Route path='/contact' element={<Contact/>} />
+          <Route path='/privacy-policy' element={<PrivacyPolicy/>} />
 
-        <Route path='/profile' element={<Profile />} />
-        <Route path='/rented' element={<Rented />} />
-        {adminRoute && isAdmin && (
-          <>
-            <Route path='/super-admin/dashboard' element={<Dashboard />} />
-            <Route path='/super-admin/upload' element={<Upload />} />
-            <Route path='/super-admin/users' element={<Users />} />
-            <Route path='/super-admin/banners' element={<Banners />} />
-            <Route path='/super-admin/editors' element={<Editors />} />
-            <Route path='/super-admin/plans' element={<Plans />} />
-          </>
-        )}
-      </Routes>
-      <Toaster position="bottom-right" reverseOrder={false} />
-      {/* Conditionally render the footer based on current route */}
-      {!isAdmin && !isAuthPage() && !isDetailPage() && <Footer />}
-    </AuthState>
+          <Route path='/profile' element={<Profile />} />
+          <Route path='/rented' element={<Rented />} />
+          {adminRoute && isAdmin && (
+            <>
+              <Route path='/super-admin/dashboard' element={<Dashboard />} />
+              <Route path='/super-admin/upload' element={<Upload />} />
+              <Route path='/super-admin/users' element={<Users />} />
+              <Route path='/super-admin/banners' element={<Banners />} />
+              <Route path='/super-admin/editors' element={<Editors />} />
+              <Route path='/super-admin/plans' element={<Plans />} />
+            </>
+          )}
+        </Routes>
+        <Toaster position="bottom-right" reverseOrder={false} />
+        {/* Conditionally render the footer based on current route */}
+        {!isAdmin && !isAuthPage() && !isDetailPage() && <Footer />}
+      </AuthState>
+    </LoadingState>
   );
 };
 

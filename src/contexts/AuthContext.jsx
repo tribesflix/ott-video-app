@@ -1,14 +1,17 @@
 import { GoogleAuthProvider, createUserWithEmailAndPassword, onAuthStateChanged, signInWithEmailAndPassword, signInWithPopup, updateProfile } from 'firebase/auth';
 import { collection, doc, getDoc, serverTimestamp, setDoc, updateDoc } from 'firebase/firestore';
-import React, { createContext, useState, useEffect } from 'react';
+import React, { createContext, useState, useEffect, useContext } from 'react';
 import { toast } from 'react-hot-toast';
 import { useNavigate } from 'react-router-dom';
 import { auth, db } from '../lib/firebase';
 import { v4 as uuidv4 } from 'uuid';
+import { LoadingContext } from './LoadingContext';
 
 export const AuthContext = createContext();
 
 const AuthState = ({ children }) => {
+
+    const { setLoading } = useContext(LoadingContext);
     const [user, setUser] = useState(null);
     const [manualLog, setManualLog] = useState({ email: "", password: "" });
     const [createUser, setCreateUser] = useState({ name: "", email: "", password: "" });
@@ -50,16 +53,20 @@ const AuthState = ({ children }) => {
     const handleGoogleSignup = async () => {
         const provider = new GoogleAuthProvider();
         try {
+            setLoading(true);
             const result = await signInWithPopup(auth, provider);
             const uid = result.user.uid;
-            const deviceAllowed = await checkDeviceLimit(uid);
 
-            if (!deviceAllowed) {
-                toast.error("You have reached the maximum number of devices.");
+            const userDoc = doc(db, "users", uid);
+            const checkExistingUser = await getDoc(userDoc);
+
+            if(checkExistingUser.exists()) {
+                toast.error("Email already exists");
+                setLoading(false);
                 return;
             }
 
-            await setDoc(doc(db, 'users', uid), {
+            await setDoc(doc(db, "users", uid), {
                 name: result.user.displayName,
                 email: result.user.email,
                 photo: result.user.photoURL,
@@ -70,22 +77,30 @@ const AuthState = ({ children }) => {
             }, { merge: true });
 
             setUser(result.user);
-            navigate('/home');
+            setLoading(false);
+            navigate('/home')
         } catch (error) {
-            console.error(error);
-            toast.error("Signup Error: Error creating account.");
+            toast.error("Failed to create account");
+            console.error("Error signing up", error);
+            setLoading(false);
+        } finally {
+            setLoading(false);
         }
-    };
+    }
 
     const handleManualSignup = async (event) => {
         event.preventDefault();
         try {
+            setLoading(true);
             const result = await createUserWithEmailAndPassword(auth, createUser.email, createUser.password);
             const uid = result.user.uid;
-            const deviceAllowed = await checkDeviceLimit(uid);
+            
+            const userDoc = doc(db, "users", uid);
+            const checkExistingUser = await getDoc(userDoc);
 
-            if (!deviceAllowed) {
-                toast.error("You have reached the maximum number of devices.");
+            if(checkExistingUser.exists()) {
+                toast.error("Email already exists");
+                setLoading(false);
                 return;
             }
 
@@ -112,14 +127,27 @@ const AuthState = ({ children }) => {
         } catch (error) {
             console.error(error);
             toast.error("Signup Error: Error creating account.");
+        } finally {
+            setLoading(false);
         }
     };
 
     const handleGoogleLogin = async () => {
         const provider = new GoogleAuthProvider();
         try {
+            setLoading(true);
             const result = await signInWithPopup(auth, provider);
             const uid = result.user.uid;
+
+            const userDoc = doc(db, "users", uid);
+            const checkExistingUser = await getDoc(userDoc);
+
+            if(!checkExistingUser.exists()) {
+                toast.error("Email does not exist");
+                setLoading(false);
+                return;
+            }
+
             const deviceAllowed = await checkDeviceLimit(uid);
 
             if (!deviceAllowed) {
@@ -127,20 +155,33 @@ const AuthState = ({ children }) => {
                 return;
             }
 
+            setUser(result.user);
             navigate('/home');
         } catch (error) {
             console.error(error);
             toast.error("Login Error: Error logging in.");
+        } finally {
+            setLoading(false);
         }
     };
 
     const handleManualLogin = async (event) => {
         event.preventDefault();
         try {
+            setLoading(true);
             const result = await signInWithEmailAndPassword(auth, manualLog.email, manualLog.password);
             const uid = result.user.uid;
-            const deviceAllowed = await checkDeviceLimit(uid);
 
+            const userDoc = doc(db, "users", uid);
+            const checkExistingUser = await getDoc(userDoc);
+
+            if(!checkExistingUser.exists()) {
+                toast.error("Email does not exist");
+                setLoading(false);
+                return;
+            }
+
+            const deviceAllowed = await checkDeviceLimit(uid);
             if (!deviceAllowed) {
                 toast.error("You have reached the maximum number of devices.");
                 return;
@@ -151,6 +192,8 @@ const AuthState = ({ children }) => {
         } catch (error) {
             console.error(error);
             toast.error("Login Error: Error logging in.");
+        } finally {
+            setLoading(false);
         }
     };
 
